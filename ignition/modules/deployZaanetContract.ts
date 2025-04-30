@@ -5,7 +5,8 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const ZaanetContractModule = buildModule("ZaanetContractModule", (m) => {
 
-  const zaanet = m.contract("ZaanetContract");
+  const tokenContract = "0xBD3822E1949DD2E187da0c3a0F8585f60D512D91"
+  const zaanet = m.contract("ZaanetContract", [tokenContract]);
 
   return { zaanet };
 });
