@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "./ZaaNetStorage.sol";
-import "./IZaaNetNetwork.sol";
+import "./interface/IZaaNetNetwork.sol";
 
 contract ZaaNetNetwork is Pausable, IZaaNetNetwork {
     ZaaNetStorage public storageContract;

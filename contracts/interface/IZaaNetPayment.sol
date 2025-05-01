@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "./ZaaNetStorage.sol"; 
+import "../ZaaNetStorage.sol"; 
 
 interface IZaaNetPayment {
     event SessionStarted(

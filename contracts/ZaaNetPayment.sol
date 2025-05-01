@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/utils/Pausable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ZaaNetStorage.sol";
-import "./IZaaNetPayment.sol";
+import "./interface/IZaaNetPayment.sol";
 
 contract ZaaNetPayment is Pausable, IZaaNetPayment {
     IERC20 public usdt;

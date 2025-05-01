@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Pausable.sol";
 
 import "./ZaaNetStorage.sol";
-import "./IZaaNetAdmin.sol";
+import "./interface/IZaaNetAdmin.sol";
 
 contract ZaaNetAdmin is Ownable, Pausable, IZaaNetAdmin {
     ZaaNetStorage public storageContract;

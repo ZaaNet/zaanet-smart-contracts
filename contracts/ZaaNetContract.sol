@@ -4,9 +4,9 @@ pragma solidity ^0.8.28;
 import "./ZaaNetNetwork.sol";
 import "./ZaaNetPayment.sol";
 import "./ZaaNetAdmin.sol";
-import "./IZaaNetNetwork.sol";
-import "./IZaaNetPayment.sol";
-import "./IZaaNetAdmin.sol";
+import "./interface/IZaaNetNetwork.sol";
+import "./interface/IZaaNetPayment.sol";
+import "./interface/IZaaNetAdmin.sol";
 
 contract ZaaNetContract {
     IZaaNetNetwork public networkContract;
