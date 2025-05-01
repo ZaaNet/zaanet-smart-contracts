@@ -31,7 +31,7 @@ contract ZaaNetPayment is Pausable, IZaaNetPayment {
         require(_duration > 0 && _duration <= 24 * 3600, "Duration must be 1-24 hours");
         require(_amount > 0, "Amount must be greater than 0");
 
-        uint256 expectedAmount = (network.pricePerHour * _duration) / 3600;
+        uint256 expectedAmount = (network.price * _duration) / 3600;
         require(_amount == expectedAmount, "Incorrect payment amount");
 
         uint256 platformFee = (_amount * platformFeePercent) / FEE_DENOMINATOR;
@@ -41,7 +41,6 @@ contract ZaaNetPayment is Pausable, IZaaNetPayment {
         require(usdt.transferFrom(msg.sender, network.host, hostAmount), "Host payment transfer failed");
 
         uint256 sessionId = storageContract.incrementSessionId();
-        uint256 expiry = block.timestamp + _duration;
         storageContract.setSession(sessionId, ZaaNetStorage.Session({
             sessionId: sessionId,
             networkId: _networkId,
@@ -51,7 +50,7 @@ contract ZaaNetPayment is Pausable, IZaaNetPayment {
             active: true
         }));
 
-        emit SessionStarted(sessionId, _networkId, msg.sender, _duration, _amount, expiry);
+        emit SessionStarted(sessionId, _networkId, msg.sender, _duration, _amount, true);
         emit PaymentReceived(sessionId, _networkId, msg.sender, _amount, platformFee);
     }
 

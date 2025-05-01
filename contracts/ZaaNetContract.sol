@@ -8,7 +8,7 @@ import "./IZaaNetNetwork.sol";
 import "./IZaaNetPayment.sol";
 import "./IZaaNetAdmin.sol";
 
-contract ZaaNetFacade {
+contract ZaaNetContract {
     IZaaNetNetwork public networkContract;
     IZaaNetPayment public paymentContract;
     IZaaNetAdmin public adminContract;
