@@ -19,6 +19,7 @@ contract ZaaNetStorage is Ownable {
         uint256 successfulSessions;
     }
 
+    // Session content
     struct Session {
         uint256 sessionId;
         uint256 networkId;

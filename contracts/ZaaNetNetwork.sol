@@ -110,7 +110,7 @@ contract ZaaNetNetwork is Pausable, IZaaNetNetwork {
 
     require(stored.id != 0, "Network does not exist");
 
-    // Map from IZaaNetStorage.Network to IZaaNetNetwork.Network
+
     IZaaNetNetwork.Network memory result = IZaaNetNetwork.Network({
         id: stored.id,
         host: stored.host,

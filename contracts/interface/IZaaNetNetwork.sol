@@ -1,21 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "../ZaaNetStorage.sol";
+
 interface IZaaNetNetwork {
-    struct Network {
-        uint256 id;
-        address host;
-        string name;
-        string country;
-        string city;
-        string area;
-        uint256 price;
-        string metadataCID;
-        bool isActive;
-        uint256 totalRating;
-        uint256 ratingCount;
-        uint256 successfulSessions;
-    }
 
     event NetworkRegistered(
         uint256 indexed networkId,
@@ -57,8 +45,8 @@ interface IZaaNetNetwork {
         bool isActive
     ) external;
 
-    function getHostedNetworkById(uint256 networkId)
+   function getHostedNetworkById(uint256 networkId)
         external
         view
-        returns (Network memory);
+        returns (ZaaNetStorage.Network memory);
 }

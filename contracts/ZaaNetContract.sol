@@ -13,7 +13,11 @@ contract ZaaNetContract {
     IZaaNetPayment public paymentContract;
     IZaaNetAdmin public adminContract;
 
-    constructor(address _networkContract, address _paymentContract, address _adminContract) {
+    constructor(
+        address _networkContract,
+        address _paymentContract,
+        address _adminContract
+    ) {
         networkContract = IZaaNetNetwork(_networkContract);
         paymentContract = IZaaNetPayment(_paymentContract);
         adminContract = IZaaNetAdmin(_adminContract);
@@ -22,37 +26,64 @@ contract ZaaNetContract {
     // Network functions
     function registerNetwork(
         string memory _name,
+        string memory _country,
         string memory _locationCity,
         string memory _locationArea,
         uint256 _pricePerHour,
         string memory _metadataCID,
         bool _isActive
     ) external {
-        networkContract.registerNetwork(_name, _locationCity, _locationArea, _pricePerHour, _metadataCID, _isActive);
+        networkContract.registerNetwork(
+            _name,
+            _country,
+            _locationCity,
+            _locationArea,
+            _pricePerHour,
+            _metadataCID,
+            _isActive
+        );
     }
 
     function updateNetwork(
         uint256 _networkId,
         string memory _name,
+        string memory _country,
         string memory _locationCity,
         string memory _locationArea,
         uint256 _pricePerHour,
         string memory _metadataCID,
         bool _isActive
     ) external {
-        networkContract.updateNetwork(_networkId, _name, _locationCity, _locationArea, _pricePerHour, _metadataCID, _isActive);
+        networkContract.updateNetwork(
+            _networkId,
+            _name,
+            _country,
+            _locationCity,
+            _locationArea,
+            _pricePerHour,
+            _metadataCID,
+            _isActive
+        );
     }
 
-    function getHostedNetworkById(uint256 _networkId) external view returns (ZaaNetStorage.Network memory) {
+    function getHostedNetworkById(
+        uint256 _networkId
+    ) external view returns (ZaaNetStorage.Network memory) {
         return networkContract.getHostedNetworkById(_networkId);
     }
 
     // Payment functions
-    function acceptPayment(uint256 _networkId, uint256 _amount, uint256 _duration) external {
+    function acceptPayment(
+        uint256 _networkId,
+        uint256 _amount,
+        uint256 _duration
+    ) external {
         paymentContract.acceptPayment(_networkId, _amount, _duration);
     }
 
-    function getSession(uint256 _sessionId) external view returns (ZaaNetStorage.Session memory) {
+    function getSession(
+        uint256 _sessionId
+    ) external view returns (ZaaNetStorage.Session memory) {
         return paymentContract.getSession(_sessionId);
     }
 
