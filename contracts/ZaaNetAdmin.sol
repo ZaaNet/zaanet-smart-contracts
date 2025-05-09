@@ -12,6 +12,11 @@ contract ZaaNetAdmin is Ownable, Pausable, IZaaNetAdmin {
     address public treasury;
     uint256 public platformFeePercent;
 
+    event PlatformFeeUpdated(uint256 oldFee, uint256 newFee);
+    event TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury);
+    event AdminPaused(address indexed triggeredBy);
+    event AdminUnpaused(address indexed triggeredBy);
+
     constructor(address _storageContract, address _treasury, uint256 _platformFeePercent) Ownable(msg.sender) {
         storageContract = ZaaNetStorage(_storageContract);
         treasury = _treasury;
@@ -20,20 +25,24 @@ contract ZaaNetAdmin is Ownable, Pausable, IZaaNetAdmin {
 
     function setPlatformFee(uint256 _newFeePercent) external override onlyOwner {
         require(_newFeePercent <= 2000, "Fee cannot exceed 20%");
+        emit PlatformFeeUpdated(platformFeePercent, _newFeePercent);
         platformFeePercent = _newFeePercent;
     }
 
     function setTreasury(address _newTreasury) external override onlyOwner {
         require(_newTreasury != address(0), "Invalid treasury address");
+        emit TreasuryUpdated(treasury, _newTreasury);
         treasury = _newTreasury;
     }
 
     function pause() external override onlyOwner {
         storageContract; // Reference to prevent unused variable warning
         _pause();
+        emit AdminPaused(msg.sender);
     }
 
     function unpause() external override onlyOwner {
         _unpause();
+        emit AdminUnpaused(msg.sender);
     }
 }

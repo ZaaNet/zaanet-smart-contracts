@@ -23,21 +23,16 @@ contract ZaaNetContract {
         adminContract = IZaaNetAdmin(_adminContract);
     }
 
+    // =====================
     // Network functions
+    // =====================
+
     function registerNetwork(
-        string memory _name,
-        string memory _country,
-        string memory _locationCity,
-        string memory _locationArea,
         uint256 _pricePerHour,
         string memory _metadataCID,
         bool _isActive
     ) external {
         networkContract.registerNetwork(
-            _name,
-            _country,
-            _locationCity,
-            _locationArea,
             _pricePerHour,
             _metadataCID,
             _isActive
@@ -46,20 +41,12 @@ contract ZaaNetContract {
 
     function updateNetwork(
         uint256 _networkId,
-        string memory _name,
-        string memory _country,
-        string memory _locationCity,
-        string memory _locationArea,
         uint256 _pricePerHour,
         string memory _metadataCID,
         bool _isActive
     ) external {
         networkContract.updateNetwork(
             _networkId,
-            _name,
-            _country,
-            _locationCity,
-            _locationArea,
             _pricePerHour,
             _metadataCID,
             _isActive
@@ -72,7 +59,10 @@ contract ZaaNetContract {
         return networkContract.getHostedNetworkById(_networkId);
     }
 
+    // =====================
     // Payment functions
+    // =====================
+
     function acceptPayment(
         uint256 _networkId,
         uint256 _amount,
@@ -87,7 +77,10 @@ contract ZaaNetContract {
         return paymentContract.getSession(_sessionId);
     }
 
+    // =====================
     // Admin functions
+    // =====================
+
     function setPlatformFee(uint256 _newFeePercent) external {
         adminContract.setPlatformFee(_newFeePercent);
     }

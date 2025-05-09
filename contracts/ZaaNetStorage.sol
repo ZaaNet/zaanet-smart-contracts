@@ -4,15 +4,11 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract ZaaNetStorage is Ownable {
-    struct Network {
+   struct Network {
         uint256 id;
         address host;
-        string name;
-        string country;
-        string city;
-        string area;
-        uint256 price;
-        string metadataCID;
+        uint256 price;             // price per per hour
+        string metadataCID;        // IPFS CID pointing to full metadata JSON
         bool isActive;
         uint256 totalRating;
         uint256 ratingCount;
