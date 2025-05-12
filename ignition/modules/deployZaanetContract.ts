@@ -3,12 +3,19 @@
 
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-const ZaanetContractModule = buildModule("ZaanetContractModule", (m) => {
+const ZaaNetContractModule = buildModule("ZaaNetContractModule", (m) => {
 
-  const tokenContract = "0xBD3822E1949DD2E187da0c3a0F8585f60D512D91"
-  const zaanet = m.contract("ZaanetContract", [tokenContract]);
+  const zaaNetNetworkContractAddress = "0x55836E883D28D117eDe9B1679D56B444b770add7";
+  const zaanetPaymentContractAddress = "0x0EAae997E5718936CD659510a8FB60c58b3B17Ae";
+  const zaanetAdminContractAddress = "0x63a04DB5538c2F994b6102e588b37b4C708aebC1";
 
-  return { zaanet };
+  const zaaNetContract = m.contract("ZaaNetContract", [
+    zaaNetNetworkContractAddress,
+    zaanetPaymentContractAddress,
+    zaanetAdminContractAddress,
+  ]);
+
+  return { zaaNetContract };
 });
 
-export default ZaanetContractModule;
+export default ZaaNetContractModule;
