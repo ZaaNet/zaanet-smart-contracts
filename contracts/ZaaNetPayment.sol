@@ -2,12 +2,9 @@
 pragma solidity ^0.8.28;
 
 import "@openzeppelin/contracts/utils/Pausable.sol";
-// import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-// import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 import "./ZaaNetStorage.sol";
 import "./interface/IZaaNetPayment.sol";
-
 import "./TestUSDT.sol";
 import "./ZaaNetAdmin.sol";
 
@@ -45,7 +42,7 @@ contract ZaaNetPayment is Pausable, IZaaNetPayment {
         );
         require(_amount > 0, "Amount must be > 0");
 
-        uint256 expectedAmount = (network.price * _duration);
+        uint256 expectedAmount = network.price * _duration;
         require(_amount == expectedAmount, "Incorrect payment amount");
 
         uint256 platformFeePercent = adminContract.platformFeePercent();
@@ -62,6 +59,9 @@ contract ZaaNetPayment is Pausable, IZaaNetPayment {
             usdt.transferFrom(msg.sender, network.host, hostAmount),
             "Host transfer failed"
         );
+
+        // This will only work if setAllowedCaller() was properly called.
+        storageContract.increaseHostEarnings(network.host, hostAmount);
 
         uint256 sessionId = storageContract.incrementSessionId();
         storageContract.setSession(
@@ -95,5 +95,7 @@ contract ZaaNetPayment is Pausable, IZaaNetPayment {
 
     function getSession(
         uint256 _sessionId
-    ) external view override returns (ZaaNetStorage.Session memory) {}
+    ) external view override returns (ZaaNetStorage.Session memory) {
+        return storageContract.getSession(_sessionId);
+    }
 }

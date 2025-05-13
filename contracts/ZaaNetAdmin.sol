@@ -11,7 +11,10 @@ contract ZaaNetAdmin is Ownable, Pausable {
     uint256 public platformFeePercent;
 
     event PlatformFeeUpdated(uint256 oldFee, uint256 newFee);
-    event TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury);
+    event TreasuryUpdated(
+        address indexed oldTreasury,
+        address indexed newTreasury
+    );
     event AdminPaused(address indexed triggeredBy);
     event AdminUnpaused(address indexed triggeredBy);
 
@@ -47,4 +50,3 @@ contract ZaaNetAdmin is Ownable, Pausable {
         emit AdminUnpaused(msg.sender);
     }
 }
-

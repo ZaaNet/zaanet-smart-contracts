@@ -1,21 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "@openzeppelin/contracts/access/Ownable.sol";
-
-contract ZaaNetStorage is Ownable {
-   struct Network {
+contract ZaaNetStorage {
+    struct Network {
         uint256 id;
         address host;
-        uint256 price;             // price per per hour
-        string metadataCID;        // IPFS CID pointing to full metadata JSON
+        uint256 price;
+        string metadataCID;
         bool isActive;
         uint256 totalRating;
         uint256 ratingCount;
         uint256 successfulSessions;
     }
 
-    // Session content
     struct Session {
         uint256 sessionId;
         uint256 networkId;
@@ -25,47 +22,82 @@ contract ZaaNetStorage is Ownable {
         bool active;
     }
 
-    mapping(uint256 => Network) public networks;
-    mapping(uint256 => Session) public sessions;
-    mapping(address => mapping(uint256 => bool)) public hasRated;
+    address public owner;
+    mapping(address => bool) public allowedCallers;
 
     uint256 public networkIdCounter;
     uint256 public sessionIdCounter;
 
-    constructor() Ownable(msg.sender) {}
+    mapping(uint256 => Network) public networks;
+    mapping(uint256 => Session) public sessions;
+    mapping(address => mapping(uint256 => bool)) public hasRated;
+    mapping(address => uint256) public hostEarnings;
 
-    // Network Logic
-    function setNetwork(uint256 _networkId, Network memory _network) external onlyOwner {
-        networks[_networkId] = _network;
+    modifier onlyAllowed() {
+        require(allowedCallers[msg.sender], "Not authorized");
+        _;
     }
 
-    function getNetwork(uint256 _networkId) external view returns (Network memory) {
-        return networks[_networkId];
+    modifier onlyOwner() {
+        require(msg.sender == owner, "Only owner");
+        _;
     }
 
-    function incrementNetworkId() external onlyOwner returns (uint256) {
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function setAllowedCaller(address _caller, bool status) external onlyOwner {
+        allowedCallers[_caller] = status;
+    }
+
+    // Network
+    function incrementNetworkId() external onlyAllowed returns (uint256) {
         return ++networkIdCounter;
     }
 
-    // Session Logic
-    function setSession(uint256 _sessionId, Session memory _session) external onlyOwner {
-        sessions[_sessionId] = _session;
+    function setNetwork(uint256 id, Network memory net) external onlyAllowed {
+        networks[id] = net;
     }
 
-    function getSession(uint256 _sessionId) external view returns (Session memory) {
-        return sessions[_sessionId];
+    function getNetwork(uint256 id) external view returns (Network memory) {
+        return networks[id];
     }
 
-    function incrementSessionId() external onlyOwner returns (uint256) {
+    // Session
+    function incrementSessionId() external onlyAllowed returns (uint256) {
         return ++sessionIdCounter;
     }
 
-    function incrementSuccessfulSessions(uint256 networkId) external onlyOwner {
-        networks[networkId].successfulSessions += 1;
+    function setSession(
+        uint256 id,
+        Session memory session
+    ) external onlyAllowed {
+        sessions[id] = session;
     }
 
-    // Rating Logic
-    function markRated(address user, uint256 networkId) external onlyOwner {
+    function getSession(uint256 id) external view returns (Session memory) {
+        return sessions[id];
+    }
+
+    function incrementSuccessfulSessions(uint256 id) external onlyAllowed {
+        networks[id].successfulSessions += 1;
+    }
+
+    // Ratings
+    function markRated(address user, uint256 networkId) external onlyAllowed {
         hasRated[user][networkId] = true;
+    }
+
+    // Earnings
+    function increaseHostEarnings(
+        address host,
+        uint256 amount
+    ) external onlyAllowed {
+        hostEarnings[host] += amount;
+    }
+
+    function getHostEarnings(address host) external view returns (uint256) {
+        return hostEarnings[host];
     }
 }

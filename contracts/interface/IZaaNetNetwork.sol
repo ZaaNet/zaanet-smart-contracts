@@ -4,9 +4,22 @@ pragma solidity ^0.8.28;
 import "../ZaaNetStorage.sol";
 
 interface IZaaNetNetwork {
-    // Events
-    event NetworkRegistered(uint256 indexed networkId, address indexed host, string metadataCID);
-    event NetworkUpdated(uint256 indexed networkId, address indexed host, string metadataCID, bool isActive);
+    // ========== Events ==========
+
+    event NetworkRegistered(
+        uint256 indexed networkId,
+        address indexed host,
+        string metadataCID
+    );
+
+    event NetworkUpdated(
+        uint256 indexed networkId,
+        address indexed host,
+        string metadataCID,
+        bool isActive
+    );
+
+    event HostAdded(address indexed newHost);
 
     // ========== Network Management ==========
 
@@ -39,6 +52,18 @@ interface IZaaNetNetwork {
         uint256 networkId
     ) external view returns (ZaaNetStorage.Network memory);
 
+    /// @notice Get all networks registered by a host
+    /// @param host Address of the host
+    /// @return networkIds List of network IDs
+    function getHostNetworks(
+        address host
+    ) external view returns (uint256[] memory);
+
+    /// @notice Public method to check if an address is a registered host
+    /// @param account The address to verify
+    /// @return isHost True if host is registered
+    function isRegisteredHost(address account) external view returns (bool);
+
     // ========== Rating System ==========
 
     /// @notice Submit a 1–5 star rating for a network
@@ -49,5 +74,7 @@ interface IZaaNetNetwork {
     /// @notice Get the average rating (multiplied by 100 to avoid decimals)
     /// @param networkId The network to check
     /// @return averageRating E.g. 431 means 4.31 stars
-    function getAverageRating(uint256 networkId) external view returns (uint256);
+    function getAverageRating(
+        uint256 networkId
+    ) external view returns (uint256);
 }

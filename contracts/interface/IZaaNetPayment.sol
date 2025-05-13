@@ -14,7 +14,7 @@ interface IZaaNetPayment {
         bool active
     );
 
-// ========== Events ==========
+    // ========== Events ==========
     event PaymentReceived(
         uint256 indexed sessionId,
         uint256 indexed networkId,
@@ -23,7 +23,7 @@ interface IZaaNetPayment {
         uint256 platformFee
     );
 
-// ========== Payment Management ==========
+    // ========== Payment Management ==========
     function acceptPayment(
         uint256 _networkId,
         uint256 _amount,
