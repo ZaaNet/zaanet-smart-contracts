@@ -11,10 +11,7 @@ contract ZaaNetAdmin is Ownable, Pausable {
     uint256 public platformFeePercent;
 
     event PlatformFeeUpdated(uint256 oldFee, uint256 newFee);
-    event TreasuryUpdated(
-        address indexed oldTreasury,
-        address indexed newTreasury
-    );
+    event TreasuryUpdated(address indexed oldTreasury, address indexed newTreasury);
     event AdminPaused(address indexed triggeredBy);
     event AdminUnpaused(address indexed triggeredBy);
 
@@ -23,7 +20,10 @@ contract ZaaNetAdmin is Ownable, Pausable {
         address _treasury,
         uint256 _platformFeePercent
     ) Ownable(msg.sender) {
-        storageContract = ZaaNetStorage(_storageContract);
+        require(_treasury != address(0), "Treasury cannot be zero address");
+        require(_platformFeePercent <= 20, "Fee cannot exceed 20%");
+
+        storageContract = ZaaNetStorage(_storageContract); // Optional reference
         treasury = _treasury;
         platformFeePercent = _platformFeePercent;
     }
@@ -48,5 +48,10 @@ contract ZaaNetAdmin is Ownable, Pausable {
     function unpause() external onlyOwner {
         _unpause();
         emit AdminUnpaused(msg.sender);
+    }
+
+    /// @notice Expose admin address for other contracts
+    function admin() external view returns (address) {
+        return owner();
     }
 }

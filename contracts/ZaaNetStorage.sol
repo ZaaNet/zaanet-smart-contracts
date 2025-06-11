@@ -43,58 +43,63 @@ contract ZaaNetStorage {
         _;
     }
 
+    event AllowedCallerUpdated(address indexed caller, bool status);
+    event NetworkStored(uint256 indexed id, address indexed host);
+    event SessionStored(uint256 indexed sessionId, address indexed guest);
+    event HostEarningsUpdated(address indexed host, uint256 totalEarned);
+    event RatingMarked(address indexed user, uint256 indexed networkId);
+
     constructor() {
         owner = msg.sender;
     }
 
     function setAllowedCaller(address _caller, bool status) external onlyOwner {
         allowedCallers[_caller] = status;
+        emit AllowedCallerUpdated(_caller, status);
     }
 
-    // Network
+    // --- Network Functions ---
     function incrementNetworkId() external onlyAllowed returns (uint256) {
         return ++networkIdCounter;
     }
 
-    function setNetwork(uint256 id, Network memory net) external onlyAllowed {
+    function setNetwork(uint256 id, Network calldata net) external onlyAllowed {
         networks[id] = net;
+        emit NetworkStored(id, net.host);
     }
 
     function getNetwork(uint256 id) external view returns (Network memory) {
         return networks[id];
     }
 
-    // Session
+    function incrementSuccessfulSessions(uint256 id) external onlyAllowed {
+        networks[id].successfulSessions += 1;
+    }
+
+    // --- Session Functions ---
     function incrementSessionId() external onlyAllowed returns (uint256) {
         return ++sessionIdCounter;
     }
 
-    function setSession(
-        uint256 id,
-        Session memory session
-    ) external onlyAllowed {
+    function setSession(uint256 id, Session calldata session) external onlyAllowed {
         sessions[id] = session;
+        emit SessionStored(id, session.guest);
     }
 
     function getSession(uint256 id) external view returns (Session memory) {
         return sessions[id];
     }
 
-    function incrementSuccessfulSessions(uint256 id) external onlyAllowed {
-        networks[id].successfulSessions += 1;
-    }
-
-    // Ratings
+    // --- Ratings ---
     function markRated(address user, uint256 networkId) external onlyAllowed {
         hasRated[user][networkId] = true;
+        emit RatingMarked(user, networkId);
     }
 
-    // Earnings
-    function increaseHostEarnings(
-        address host,
-        uint256 amount
-    ) external onlyAllowed {
+    // --- Earnings ---
+    function increaseHostEarnings(address host, uint256 amount) external onlyAllowed {
         hostEarnings[host] += amount;
+        emit HostEarningsUpdated(host, hostEarnings[host]);
     }
 
     function getHostEarnings(address host) external view returns (uint256) {
