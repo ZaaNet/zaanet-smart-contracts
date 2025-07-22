@@ -5,37 +5,18 @@ import "../ZaaNetStorage.sol";
 
 /// @title IZaaNetPayment - Interface for ZaaNet Payment Contract
 interface IZaaNetPayment {
-    // ========== Events ==========
-
-    /// @notice Emitted when a session starts
-    event SessionStarted(
-        uint256 indexed sessionId,
-        uint256 indexed networkId,
-        address indexed guest,
-        uint256 duration,
-        uint256 amount,
-        bool active
-    );
-
-    /// @notice Emitted when payment is received
-    event PaymentReceived(
-        uint256 indexed sessionId,
-        uint256 indexed networkId,
-        address indexed guest,
-        uint256 amount,
-        uint256 platformFee
-    );
-
     // ========== Payment Management ==========
 
-    /// @notice Accept a guest's payment to access a hosted network
+    /// @notice Accept a payment to access a hosted network
     /// @param _networkId The ID of the network being accessed
-    /// @param _amount Total amount paid (pricePerHour * duration)
-    /// @param _duration Number of hours the guest wants access
+    /// @param _amount Total amount paid (pricePerSession)
+    /// @param _voucherId Optional voucher/discount code ID
+    /// @param _userId User identifier for tracking
     function acceptPayment(
         uint256 _networkId,
         uint256 _amount,
-        uint256 _duration
+        uint256 _voucherId,
+        uint256 _userId
     ) external;
 
     /// @notice Fetch session details by ID
@@ -44,4 +25,12 @@ interface IZaaNetPayment {
     function getSession(
         uint256 _sessionId
     ) external view returns (ZaaNetStorage.Session memory);
+
+    /// @notice Calculate fees for a payment amount
+    /// @param amount The payment amount to calculate fees for
+    /// @return hostAmount Amount that goes to the host
+    /// @return platformFee Amount that goes to the platform
+    function calculateFees(
+        uint256 amount
+    ) external view returns (uint256 hostAmount, uint256 platformFee);
 }
