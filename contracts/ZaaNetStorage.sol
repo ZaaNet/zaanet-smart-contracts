@@ -25,8 +25,8 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
         address paymentAddress;
         uint256 amount;
         bool active;
-        uint256 voucherId;
-        uint256 userId;
+        string voucherId;
+        string userId;
         uint256 startTime;
     }
 

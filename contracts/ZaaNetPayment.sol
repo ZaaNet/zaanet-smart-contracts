@@ -9,14 +9,13 @@ import "./interface/IZaaNetPayment.sol";
 import "./TestUSDT.sol";
 import "./ZaaNetAdmin.sol";
 
-// FIXED: Removed 'abstract' keyword - this contract is now deployable
-contract ZaaNetPayment is Ownable, Pausable, ReentrancyGuard, IZaaNetPayment {
+contract ZaaNetPayment is Ownable, Pausable, ReentrancyGuard {
     TestUSDT public usdt;
     ZaaNetStorage public storageContract;
     ZaaNetAdmin public adminContract;
 
     // Constants
-    uint256 public constant MAX_PAYMENT_AMOUNT = 10000e6; // 10,000 USDT
+    uint256 public constant MAX_PAYMENT_AMOUNT = 10000e18; // 10,000 USDT (for dev testing usdt is 18 decimals)
 
     /// @notice Emitted when a session starts
     event SessionStarted(
@@ -25,8 +24,8 @@ contract ZaaNetPayment is Ownable, Pausable, ReentrancyGuard, IZaaNetPayment {
         address indexed paymentAddress,
         uint256 amount,
         bool active,
-        uint256 voucherId,
-        uint256 userId,
+        string voucherId,
+        string userId,
         uint256 startTime
     );
 
@@ -51,17 +50,14 @@ contract ZaaNetPayment is Ownable, Pausable, ReentrancyGuard, IZaaNetPayment {
         usdt = TestUSDT(_usdt);
         storageContract = ZaaNetStorage(_storageContract);
         adminContract = ZaaNetAdmin(_adminContract);
-
-        // CRITICAL: Set this contract as an allowed caller
-        storageContract.setAllowedCaller(address(this), true);
     }
 
     function acceptPayment(
         uint256 _networkId,
         uint256 _amount,
-        uint256 _voucherId,
-        uint256 _userId
-    ) external override whenNotPaused nonReentrant {
+        string memory _voucherId,
+        string memory _userId
+    ) external whenNotPaused nonReentrant {
         // Validate inputs
         require(
             _amount > 0 && _amount <= MAX_PAYMENT_AMOUNT,
@@ -141,7 +137,7 @@ contract ZaaNetPayment is Ownable, Pausable, ReentrancyGuard, IZaaNetPayment {
 
     function getSession(
         uint256 _sessionId
-    ) external view override returns (ZaaNetStorage.Session memory) {
+    ) external view returns (ZaaNetStorage.Session memory) {
         return storageContract.getSession(_sessionId);
     }
 

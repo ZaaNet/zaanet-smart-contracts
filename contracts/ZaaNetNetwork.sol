@@ -11,8 +11,8 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
     ZaaNetStorage public storageContract;
 
     // Constants for validation
-    uint256 public constant MIN_PRICE_PER_SESSION = 1e18; // 1 USDT (18 decimals for test USDT) 
-    uint256 public constant MAX_PRICE_PER_SESSION = 10e18; // 10 USDT (18  decimals for test USDT)
+    uint256 public constant MIN_PRICE_PER_SESSION = 2e17; // 0.2 USDT (18 decimals for test USDT) 
+    uint256 public constant MAX_PRICE_PER_SESSION = 5e18; // 5 USDT (18  decimals for test USDT)
     uint256 public constant MAX_MONGO_DATA_LENGTH = 200; // Reasonable limit for data ID
 
     mapping(address => bool) public isHost;
@@ -29,9 +29,6 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
             "Invalid storage contract address"
         );
         storageContract = ZaaNetStorage(_storageContract);
-
-        // CRITICAL: Set this contract as an allowed caller
-        storageContract.setAllowedCaller(address(this), true);
     }
 
     /// @notice Register a new network with mongoDataID
