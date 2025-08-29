@@ -1,10 +1,20 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
-import "../ZaaNetStorage.sol";
-
 /// @title IZaaNetStorage - Interface for ZaaNet Storage Contract
 interface IZaaNetStorage {
+    
+    // ========== Structs ==========
+    
+    struct Network {
+        uint256 id;
+        address hostAddress;
+        uint256 pricePerSession;
+        string mongoDataId;
+        bool isActive;
+        uint256 createdAt;
+        uint256 updatedAt;
+    }
 
     // ========== Access Control ==========
     
@@ -14,26 +24,25 @@ interface IZaaNetStorage {
     // ========== Network Functions ==========
     
     function incrementNetworkId() external returns (uint256);
-    function setNetwork(uint256 id, ZaaNetStorage.Network calldata network) external;
-    function getNetwork(uint256 id) external view returns (ZaaNetStorage.Network memory);
-    function getNetworksPaginated(uint256 offset, uint256 limit) external view returns (ZaaNetStorage.Network[] memory, uint256 total);
+    function setNetwork(uint256 id, Network calldata network) external;
+    function getNetwork(uint256 id) external view returns (Network memory);
+    function getNetworksPaginated(uint256 offset, uint256 limit) 
+        external view returns (Network[] memory, uint256 total);
+    function getHostNetworks(address hostAddress) external view returns (uint256[] memory);
     function networkIdCounter() external view returns (uint256);
-
-    // ========== Session Functions ==========
-    
-    function incrementSessionId() external returns (uint256);
-    function setSession(uint256 id, ZaaNetStorage.Session calldata session) external;
-    function getSession(uint256 id) external view returns (ZaaNetStorage.Session memory);
-    function endSession(uint256 sessionId) external;
-    function sessionIdCounter() external view returns (uint256);
 
     // ========== Earnings Functions ==========
     
     function increaseHostEarnings(address hostAddress, uint256 amount) external;
     function getHostEarnings(address hostAddress) external view returns (uint256);
+    function increaseZaaNetEarnings(uint256 amount) external;
+    function getZaaNetEarnings() external view returns (uint256);
 
     // ========== Admin Functions ==========
     
     function emergencyDeactivateNetwork(uint256 networkId) external;
-    function getStats() external view returns (uint256 totalNetworks, uint256 totalSessions, uint256 activeNetworks, uint256 activeSessions);
+
+    // ========== Session Functions (Legacy - Remove if not needed) ==========
+    
+    function incrementSessionId() external returns (uint256);
 }

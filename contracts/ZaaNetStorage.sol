@@ -5,10 +5,6 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract ZaaNetStorage is Ownable, ReentrancyGuard {
-    // Constants for better maintainability
-    uint256 public constant MAX_NETWORKS_PER_QUERY = 100;
-    uint256 public constant MAX_SESSIONS_PER_QUERY = 100;
-
     struct Network {
         uint256 id;
         address hostAddress;
@@ -19,22 +15,10 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
         uint256 updatedAt;
     }
 
-    struct Session {
-        uint256 sessionId;
-        uint256 networkId;
-        address paymentAddress;
-        uint256 amount;
-        bool active;
-        string voucherId;
-        string userId;
-        uint256 startTime;
-    }
-
     mapping(address => bool) public allowedCallers; // Addresses allowed to call storage functions
     uint256 public networkIdCounter; // Counter for network IDs
-    uint256 public sessionIdCounter; // Counter for session IDs
+    uint256 public zaanetEarnings = 0; // Total earnings for ZaaNet platform
     mapping(uint256 => Network) public networks;
-    mapping(uint256 => Session) public sessions;
     mapping(address => uint256) public hostEarnings;
 
     // New mappings for better data management
@@ -43,18 +27,36 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
     mapping(uint256 => bool) public sessionExists;
 
     modifier onlyAllowed() {
-        require(allowedCallers[msg.sender] || msg.sender == owner(), "Not authorized");
+        require(
+            allowedCallers[msg.sender] || msg.sender == owner(),
+            "Not authorized"
+        );
         _;
     }
 
     event AllowedCallerUpdated(address indexed caller, bool status);
-    event NetworkStored(uint256 indexed id, address indexed hostAddress, uint256 pricePerSession);
+    event NetworkStored(
+        uint256 indexed id,
+        address indexed hostAddress,
+        uint256 pricePerSession
+    );
     event NetworkUpdated(uint256 indexed id, address indexed hostAddress);
-    event SessionStored(uint256 indexed sessionId, address indexed paymentAddress, uint256 amount);
+    event SessionStored(
+        uint256 indexed sessionId,
+        address indexed paymentAddress,
+        uint256 amount
+    );
     event HostEarningsUpdated(address indexed hostAddress, uint256 totalEarned);
+    event ZaaNetEarningsUpdated(uint256 totalEarned);
 
-    constructor() Ownable(msg.sender) {}
+    // --- Constructor ---
+    constructor(address[] memory _initialCallers) Ownable(msg.sender) {
+        for (uint256 i = 0; i < _initialCallers.length; i++) {
+            allowedCallers[_initialCallers[i]] = true;
+        }
+    }
 
+    // --- Caller Management ---
     function setAllowedCaller(address _caller, bool status) external onlyOwner {
         require(_caller != address(0), "Invalid caller address");
         allowedCallers[_caller] = status;
@@ -62,7 +64,10 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
     }
 
     // Batch set allowed callers for initial setup
-    function setAllowedCallers(address[] calldata _callers, bool status) external onlyOwner {
+    function setAllowedCallers(
+        address[] calldata _callers,
+        bool status
+    ) external onlyOwner {
         for (uint256 i = 0; i < _callers.length; i++) {
             require(_callers[i] != address(0), "Invalid caller address");
             allowedCallers[_callers[i]] = status;
@@ -82,7 +87,7 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
         require(bytes(net.mongoDataId).length > 0, "MongoDataID required");
 
         bool isNewNetwork = !networkExists[id];
-        
+
         networks[id] = Network({
             id: net.id,
             hostAddress: net.hostAddress,
@@ -108,11 +113,9 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
     }
 
     function getNetworksPaginated(
-        uint256 offset, 
+        uint256 offset,
         uint256 limit
     ) external view returns (Network[] memory, uint256 total) {
-        require(limit <= MAX_NETWORKS_PER_QUERY, "Limit too high");
-        
         total = networkIdCounter;
         if (offset >= total) {
             return (new Network[](0), total);
@@ -131,66 +134,39 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
         return (result, total);
     }
 
-    function getHostNetworks(address hostAddress) external view returns (uint256[] memory) {
+    function getHostNetworks(
+        address hostAddress
+    ) external view returns (uint256[] memory) {
         return hostNetworkIds[hostAddress];
     }
 
-    // --- Session Functions ---
-    function incrementSessionId() external onlyAllowed returns (uint256) {
-        return ++sessionIdCounter;
-    }
-
-    function setSession(uint256 id, Session calldata session) external onlyAllowed {
-        require(id > 0, "Invalid session ID");
-        require(session.paymentAddress != address(0), "Invalid payment address");
-        require(session.amount > 0, "Amount must be greater than 0");
-        require(networkExists[session.networkId], "Network does not exist");
-
-        sessions[id] = session;
-        sessionExists[id] = true;
-        emit SessionStored(id, session.paymentAddress, session.amount);
-    }
-
-    function getSession(uint256 id) external view returns (Session memory) {
-        require(sessionExists[id], "Session does not exist");
-        return sessions[id];
-    }
-
     // --- Earnings ---
-    function increaseHostEarnings(address hostAddress, uint256 amount) external onlyAllowed nonReentrant {
+    function increaseHostEarnings(
+        address hostAddress,
+        uint256 amount
+    ) external onlyAllowed nonReentrant {
         require(hostAddress != address(0), "Invalid host address");
         require(amount > 0, "Amount must be greater than 0");
-        
+
         hostEarnings[hostAddress] += amount;
         emit HostEarningsUpdated(hostAddress, hostEarnings[hostAddress]);
     }
 
-    function getHostEarnings(address hostAddress) external view returns (uint256) {
+    function getHostEarnings(
+        address hostAddress
+    ) external view returns (uint256) {
         return hostEarnings[hostAddress];
     }
 
-    // --- Admin Functions ---
-    function getStats() external view returns (
-        uint256 totalNetworks,
-        uint256 totalSessions,
-        uint256 activeNetworks,
-        uint256 activeSessions
-    ) {
-        totalNetworks = networkIdCounter;
-        totalSessions = sessionIdCounter;
+    function increaseZaaNetEarnings(
+        uint256 amount
+    ) external onlyAllowed nonReentrant {
+        require(amount > 0, "Amount must be greater than 0");
+        zaanetEarnings += amount;
+    }
 
-        // Count active networks and sessions
-        for (uint256 i = 1; i <= networkIdCounter; i++) {
-            if (networks[i].isActive) {
-                activeNetworks++;
-            }
-        }
-
-        for (uint256 i = 1; i <= sessionIdCounter; i++) {
-            if (sessions[i].active) {
-                activeSessions++;
-            }
-        }
+    function getZaaNetEarnings() external view returns (uint256) {
+        return zaanetEarnings;
     }
 
     // Emergency function to deactivate a network

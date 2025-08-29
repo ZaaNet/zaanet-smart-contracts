@@ -4,7 +4,7 @@ const ZaaNetDeploymentModule = buildModule("ZaaNetDeploymentModule", (m) => {
   // Configuration - Update these addresses as needed
   const testUSDTAddress = "0x1A14a686567945626350481fC07Ec24767d1A640"; // Existing USDT contract
   const treasuryAddress = "0x2652164707AA3269C83FEAA9923b0e19CacFA906";  // Treasury wallet
-  const platformFeePercent = 10; // 5% platform fee
+  const platformFeePercent = 10; // 10% platform fee
 
   console.log("🚀 Starting ZaaNet deployment with Hardhat Ignition...");
   console.log(`📋 Configuration:`);
@@ -42,15 +42,6 @@ const ZaaNetDeploymentModule = buildModule("ZaaNetDeploymentModule", (m) => {
     id: "ZaaNetPayment",
   });
 
-  // 5. Deploy ZaaNetVoucher (depends on USDT, storage and treasury)
-  const zaaNetVoucher = m.contract("ZaaNetVoucher", [
-    testUSDTAddress,
-    treasuryAddress,
-    zaaNetStorage,
-  ], {
-    id: "ZaaNetVoucher",
-  });
-
   // 5. Access control - CRITICAL for functionality
   // Note: These calls will be executed after all contracts are deployed
 
@@ -71,12 +62,7 @@ const ZaaNetDeploymentModule = buildModule("ZaaNetDeploymentModule", (m) => {
     id: "authorizeAdminCaller",
     after: [zaaNetAdmin], // Ensure admin is deployed first
   });
-
-  // Authorize ZaaNetVoucher to call ZaaNetStorage
-  m.call(zaaNetStorage, "setAllowedCaller", [zaaNetVoucher, true], {
-    id: "authorizeVoucherCaller",
-    after: [zaaNetVoucher], // Ensure voucher is deployed first
-  });
+  
 
   // Return all deployed contracts for external reference
   return {
@@ -84,7 +70,6 @@ const ZaaNetDeploymentModule = buildModule("ZaaNetDeploymentModule", (m) => {
     zaaNetAdmin, 
     zaaNetNetwork,
     zaaNetPayment,
-    zaaNetVoucher,
   };
 });
 
