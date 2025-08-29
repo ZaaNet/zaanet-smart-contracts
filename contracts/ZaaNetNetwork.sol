@@ -22,7 +22,7 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
     IERC20 public usdt;
 
     // Constants for validation (updated for 6-decimal USDT)
-    uint256 public constant MIN_PRICE_PER_SESSION = 200000; // 0.2 USDT (6 decimals)
+    uint256 public constant MIN_PRICE_PER_SESSION = 100000; // 0.1 USDT (6 decimals)
     uint256 public constant MAX_PRICE_PER_SESSION = 50000000; // 50 USDT (6 decimals)
     uint256 public constant MAX_MONGO_DATA_LENGTH = 200; // Reasonable limit for data ID
 
