@@ -1,22 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.28;
 
+import "./IZaaNetStorage.sol";
+
 interface IZaaNetNetwork {
-    
-    // ========== Structs ==========
-    
-    struct Network {
-        uint256 id;
-        address hostAddress;
-        uint256 pricePerSession;
-        string mongoDataId;
-        bool isActive;
-        uint256 createdAt;
-        uint256 updatedAt;
-    }
 
     // ========== Network Management ==========
-
     function registerNetwork(
         uint256 pricePerSession,
         string memory mongoDataId,
@@ -34,13 +23,13 @@ interface IZaaNetNetwork {
     // ========== View Functions ==========
 
     function getHostedNetworkById(uint256 networkId) 
-        external view returns (Network memory);
+        external view returns (IZaaNetStorage.Network memory);
 
     function getHostNetworks(address hostAddress) 
         external view returns (uint256[] memory);
 
     function getActiveHostNetworks(address hostAddress) 
-        external view returns (Network[] memory);
+        external view returns (IZaaNetStorage.Network[] memory);
 
     function isRegisteredHost(address hostAddress) 
         external view returns (bool);
@@ -53,10 +42,10 @@ interface IZaaNetNetwork {
         );
 
     function getNetworksPaginated(uint256 offset, uint256 limit)
-        external view returns (Network[] memory networks, uint256 totalCount);
+        external view returns (IZaaNetStorage.Network[] memory networks, uint256 totalCount);
 
     function getAllActiveNetworks() 
-        external view returns (Network[] memory);
+        external view returns (IZaaNetStorage.Network[] memory);
 
     function getCurrentHostingFee() external view returns (uint256);
 

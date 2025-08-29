@@ -6,7 +6,7 @@ interface IZaaNetStorage {
     
     // ========== Structs ==========
     
-    struct Network {
+     struct Network {
         uint256 id;
         address hostAddress;
         uint256 pricePerSession;

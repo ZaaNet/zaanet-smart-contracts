@@ -7,14 +7,14 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "./ZaaNetStorage.sol";
-import "./interface/IZaaNetNetwork.sol";
 
 interface IZaaNetAdmin {
     function hostingFee() external view returns (uint256);
+
     function treasuryAddress() external view returns (address);
 }
 
-contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
+contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     ZaaNetStorage public storageContract;
@@ -22,7 +22,7 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
     IERC20 public usdt;
 
     // Constants for validation (updated for 6-decimal USDT)
-    uint256 public constant MIN_PRICE_PER_SESSION = 100000; // 0.1 USDT (6 decimals)
+    uint256 public constant MIN_PRICE_PER_SESSION = 10000; // 0.01 USDT (6 decimals)
     uint256 public constant MAX_PRICE_PER_SESSION = 50000000; // 50 USDT (6 decimals)
     uint256 public constant MAX_MONGO_DATA_LENGTH = 200; // Reasonable limit for data ID
 
@@ -51,15 +51,40 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
         uint256 timestamp
     );
 
+    event NetworkUpdated(
+        uint256 indexed networkId,
+        address indexed hostAddress,
+        uint256 pricePerSession,
+        string mongoDataId,
+        bool isActive
+    );
+
+    event NetworkPriceUpdated(
+        uint256 indexed networkId,
+        uint256 oldPrice,
+        uint256 newPrice
+    );
+
+    event NetworkStatusChanged(
+        uint256 indexed networkId,
+        bool oldStatus,
+        bool newStatus
+    );
+
+    event HostAdded(address indexed host);
+
     constructor(
         address _storageContract,
         address _adminContract,
         address _usdt
     ) Ownable(msg.sender) {
-        require(_storageContract != address(0), "Invalid storage contract address");
+        require(
+            _storageContract != address(0),
+            "Invalid storage contract address"
+        );
         require(_adminContract != address(0), "Invalid admin contract address");
         require(_usdt != address(0), "Invalid USDT contract address");
-        
+
         storageContract = ZaaNetStorage(_storageContract);
         adminContract = IZaaNetAdmin(_adminContract);
         usdt = IERC20(_usdt);
@@ -70,9 +95,10 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
         uint256 _pricePerSession,
         string memory _mongoDataId,
         bool _isActive
-    ) external override whenNotPaused nonReentrant {
+    ) external whenNotPaused nonReentrant {
         require(
-            block.timestamp >= lastRegistrationTime[msg.sender] + REGISTRATION_COOLDOWN,
+            block.timestamp >=
+                lastRegistrationTime[msg.sender] + REGISTRATION_COOLDOWN,
             "Registration cooldown active"
         );
         require(
@@ -89,7 +115,7 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
         // Get hosting fee from admin contract
         uint256 hostingFee = adminContract.hostingFee();
         address treasuryAddress = adminContract.treasuryAddress();
-        
+
         // Collect hosting fee if required
         if (hostingFee > 0 && treasuryAddress != address(0)) {
             require(
@@ -100,13 +126,13 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
                 usdt.allowance(msg.sender, address(this)) >= hostingFee,
                 "Insufficient USDT allowance for hosting fee"
             );
-            
+
             // Transfer hosting fee to treasury
             usdt.safeTransferFrom(msg.sender, treasuryAddress, hostingFee);
 
             // Increase ZaaNet earnings in storage
             storageContract.increaseZaaNetEarnings(hostingFee);
-            
+
             emit HostingFeePaid(msg.sender, hostingFee, block.timestamp);
         }
 
@@ -155,7 +181,9 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
         bool _isActive,
         address sender
     ) internal {
-        ZaaNetStorage.Network memory network = storageContract.getNetwork(_networkId);
+        ZaaNetStorage.Network memory network = storageContract.getNetwork(
+            _networkId
+        );
         require(network.hostAddress == sender, "Only host can update");
         require(
             _pricePerSession >= MIN_PRICE_PER_SESSION &&
@@ -202,13 +230,15 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
         uint256 _networkId,
         uint256 _pricePerSession,
         bool _isActive
-    ) external override whenNotPaused nonReentrant {
+    ) external whenNotPaused nonReentrant {
         _updateNetwork(_networkId, _pricePerSession, _isActive, msg.sender);
     }
 
     /// @notice Deactivate a network (soft delete)
     function deactivateNetwork(uint256 _networkId) external whenNotPaused {
-        ZaaNetStorage.Network memory network = storageContract.getNetwork(_networkId);
+        ZaaNetStorage.Network memory network = storageContract.getNetwork(
+            _networkId
+        );
         require(network.hostAddress == msg.sender, "Only host can deactivate");
         require(network.isActive, "Network already inactive");
 
@@ -218,14 +248,14 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
     /// @notice Get full network details from storage
     function getHostedNetworkById(
         uint256 _networkId
-    ) external view override returns (ZaaNetStorage.Network memory) {
+    ) external view returns (ZaaNetStorage.Network memory) {
         return storageContract.getNetwork(_networkId);
     }
 
     /// @notice Get all network IDs registered by a host
     function getHostNetworks(
         address hostAddress
-    ) external view override returns (uint256[] memory) {
+    ) external view returns (uint256[] memory) {
         return hostNetworks[hostAddress];
     }
 
@@ -238,17 +268,22 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
 
         // First pass: count active networks
         for (uint256 i = 0; i < networkIds.length; i++) {
-            ZaaNetStorage.Network memory network = storageContract.getNetwork(networkIds[i]);
+            ZaaNetStorage.Network memory network = storageContract.getNetwork(
+                networkIds[i]
+            );
             if (network.isActive) {
                 activeCount++;
             }
         }
 
         // Second pass: populate active networks
-        ZaaNetStorage.Network[] memory activeNetworks = new ZaaNetStorage.Network[](activeCount);
+        ZaaNetStorage.Network[]
+            memory activeNetworks = new ZaaNetStorage.Network[](activeCount);
         uint256 index = 0;
         for (uint256 i = 0; i < networkIds.length; i++) {
-            ZaaNetStorage.Network memory network = storageContract.getNetwork(networkIds[i]);
+            ZaaNetStorage.Network memory network = storageContract.getNetwork(
+                networkIds[i]
+            );
             if (network.isActive) {
                 activeNetworks[index] = network;
                 index++;
@@ -261,7 +296,7 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
     /// @notice Public method to check if an address is a registered host
     function isRegisteredHost(
         address hostAddress
-    ) external view override returns (bool) {
+    ) external view returns (bool) {
         return isHost[hostAddress];
     }
 
@@ -283,7 +318,9 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
         // Count active networks
         uint256[] memory networkIds = hostNetworks[hostAddress];
         for (uint256 i = 0; i < networkIds.length; i++) {
-            ZaaNetStorage.Network memory network = storageContract.getNetwork(networkIds[i]);
+            ZaaNetStorage.Network memory network = storageContract.getNetwork(
+                networkIds[i]
+            );
             if (network.isActive) {
                 activeNetworks++;
             }
@@ -310,17 +347,18 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard, IZaaNetNetwork {
     {
         (ZaaNetStorage.Network[] memory allNetworks, ) = storageContract
             .getNetworksPaginated(0, 100);
+        uint256 activeCount = 0;
 
         // Count active networks first
-        uint256 activeCount = 0;
         for (uint256 i = 0; i < allNetworks.length; i++) {
             if (allNetworks[i].isActive) {
                 activeCount++;
             }
         }
 
-        // Array of active networks
-        ZaaNetStorage.Network[] memory activeNetworks = new ZaaNetStorage.Network[](activeCount);
+        // Create properly sized array and populate with active networks
+        ZaaNetStorage.Network[]
+            memory activeNetworks = new ZaaNetStorage.Network[](activeCount);
         uint256 index = 0;
         for (uint256 i = 0; i < allNetworks.length; i++) {
             if (allNetworks[i].isActive) {
