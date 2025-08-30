@@ -4,11 +4,16 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 contract TestUSDT is ERC20 {
-    constructor(uint256 initialSupply) ERC20("Test Tether USD", "USDT") {
-        _mint(msg.sender, initialSupply);
+    constructor() ERC20("Test USDT", "TUSDT") {
+        _mint(msg.sender, 1000000 * 10**6); // 1M test USDT
     }
-
-    function mint(address to, uint256 amount) external {
+    
+    function decimals() public pure override returns (uint8) {
+        return 6;
+    }
+    
+    // Add this for easier testing
+    function mint(address to, uint256 amount) public {
         _mint(to, amount);
     }
 }

@@ -334,10 +334,9 @@ contract ZaaNetAdmin is Ownable, Pausable, ReentrancyGuard {
     /// @notice Get all current fees in one call (gas efficient)
     function getCurrentFees() external view returns (
         uint256 platformFeePercentage,
-        uint256 hostingFeeAmount,
-        address treasury
+        uint256 hostingFeeAmount
     ) {
-        return (platformFeePercent, hostingFee, treasuryAddress);
+        return (platformFeePercent, hostingFee);
     }
 
     // --- Compatibility Functions (for interface alignment) ---
@@ -345,6 +344,11 @@ contract ZaaNetAdmin is Ownable, Pausable, ReentrancyGuard {
     /// @notice Alternative name for treasury address (interface compatibility)
     function treasury() external view returns (address) {
         return treasuryAddress;
+    }
+
+    /// @notice Alternative name for payment address (interface compatibility)
+    function payment() external view returns (address) {
+        return paymentAddress;
     }
 
     /// @notice Check if contract is paused (interface compatibility)

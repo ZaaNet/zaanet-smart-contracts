@@ -2,15 +2,19 @@ import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
 const ZaaNetDeploymentModule = buildModule("ZaaNetDeploymentModule", (m) => {
   // Configuration - Update these addresses as needed
-  const testUSDTAddress = "0x1A14a686567945626350481fC07Ec24767d1A640"; // Existing USDT contract
+  const testUSDTAddress = "0x438C411f9aEFDd02D90C31Dc24bC1380c08934Cd"; // Existing USDT contract
   const treasuryAddress = "0x2652164707AA3269C83FEAA9923b0e19CacFA906";  // Treasury wallet
+  const paymentAddress = "0x79f41E312Adf15b731bFEC99675C5bE2A8A215C1"; // Payment contract
   const platformFeePercent = 10; // 10% platform fee
+  const hostingFee = 2 * (10 ** 6); // 2 USDT
 
   console.log("🚀 Starting ZaaNet deployment with Hardhat Ignition...");
   console.log(`📋 Configuration:`);
   console.log(`   - Test USDT: ${testUSDTAddress}`);
   console.log(`   - Treasury: ${treasuryAddress}`);
+  console.log(`   - Payment: ${paymentAddress}`);
   console.log(`   - Platform Fee: ${platformFeePercent}%`);
+  console.log(`   - Hosting Fee: ${hostingFee} USDT`);
 
   // 1. Deploy ZaaNetStorage first (no dependencies)
   const zaaNetStorage = m.contract("ZaaNetStorage", [], {
@@ -21,7 +25,9 @@ const ZaaNetDeploymentModule = buildModule("ZaaNetDeploymentModule", (m) => {
   const zaaNetAdmin = m.contract("ZaaNetAdmin", [
     zaaNetStorage,
     treasuryAddress,
+    paymentAddress,
     platformFeePercent,
+    hostingFee
   ], {
     id: "ZaaNetAdmin",
   });
@@ -29,6 +35,8 @@ const ZaaNetDeploymentModule = buildModule("ZaaNetDeploymentModule", (m) => {
   // 3. Deploy ZaaNetNetwork (depends on storage)
   const zaaNetNetwork = m.contract("ZaaNetNetwork", [
     zaaNetStorage,
+    zaaNetAdmin,
+    testUSDTAddress
   ], {
     id: "ZaaNetNetwork",
   });

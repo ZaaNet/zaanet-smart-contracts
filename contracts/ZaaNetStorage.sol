@@ -50,11 +50,7 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
     event ZaaNetEarningsUpdated(uint256 totalEarned);
 
     // --- Constructor ---
-    constructor(address[] memory _initialCallers) Ownable(msg.sender) {
-        for (uint256 i = 0; i < _initialCallers.length; i++) {
-            allowedCallers[_initialCallers[i]] = true;
-        }
-    }
+    constructor() Ownable(msg.sender) {}
 
     // --- Caller Management ---
     function setAllowedCaller(address _caller, bool status) external onlyOwner {
