@@ -17,9 +17,13 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
 
     mapping(address => bool) public allowedCallers; // Addresses allowed to call storage functions
     uint256 public networkIdCounter; // Counter for network IDs
+    uint256 public totalPaymentsAmount = 0; // Total amount processed through payments
+    uint256 public totalWithdrawalsAmount = 0; // Total amount processed through withdrawals
+    uint256 public totalHostingAmount = 0; // Total amount processed through hosting
     uint256 public zaanetEarnings = 0; // Total earnings for ZaaNet platform
     mapping(uint256 => Network) public networks;
     mapping(address => uint256) public hostEarnings;
+    
 
     // New mappings for better data management
     mapping(address => uint256[]) public hostNetworkIds;
@@ -165,6 +169,24 @@ contract ZaaNetStorage is Ownable, ReentrancyGuard {
         return zaanetEarnings;
     }
 
+    function updateTotalPaymentsAmount(
+        uint256 amount
+    ) external onlyAllowed nonReentrant {
+        require(amount > 0, "Amount must be greater than 0");
+        totalPaymentsAmount += amount;
+    }
+    function updateTotalWithdrawalsAmount(
+        uint256 amount
+    ) external onlyAllowed nonReentrant {
+        require(amount > 0, "Amount must be greater than 0");
+        totalWithdrawalsAmount += amount;
+    }
+    function updateTotalHostingAmount(
+        uint256 amount
+    ) external onlyAllowed nonReentrant {
+        require(amount > 0, "Amount must be greater than 0");
+        totalHostingAmount += amount;
+    }
     // Emergency function to deactivate a network
     function emergencyDeactivateNetwork(uint256 networkId) external onlyOwner {
         require(networkExists[networkId], "Network does not exist");

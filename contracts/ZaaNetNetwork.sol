@@ -124,14 +124,15 @@ contract ZaaNetNetwork is Ownable, Pausable, ReentrancyGuard {
             );
             require(
                 usdt.allowance(msg.sender, address(this)) >= hostingFee,
-                "Insufficient USDT allowance for hosting fee"
+                "Hosting fee not approved"
             );
 
             // Transfer hosting fee to treasury
             usdt.safeTransferFrom(msg.sender, treasuryAddress, hostingFee);
 
-            // Increase ZaaNet earnings in storage
+            // Increase ZaaNet earnings and total hosting amount in storage
             storageContract.increaseZaaNetEarnings(hostingFee);
+            storageContract.updateTotalHostingAmount(hostingFee);
 
             emit HostingFeePaid(msg.sender, hostingFee, block.timestamp);
         }

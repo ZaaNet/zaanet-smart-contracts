@@ -1,6 +1,7 @@
 {
-  "ZaaNetDeploymentModule#ZaaNetStorage": "0x466C0B6a9Ef4A90289dc2b5D6cCF24A8D45D6b7C",
-  "ZaaNetDeploymentModule#ZaaNetAdmin": "0xcEc60123b5a57C70d2167A841dFc24229e7441c8",
-  "ZaaNetDeploymentModule#ZaaNetNetwork": "0x0f44129854662F065E960ad3EF0e0476dD6A5E0b",
-  "ZaaNetDeploymentModule#ZaaNetPayment": "0x682B0728a273bAf693FCB9E4E11eafe1BC2897f3"
+  "testUSDTModule#TestUSDT": "0x438C411f9aEFDd02D90C31Dc24bC1380c08934Cd",
+  "ZaaNetDeploymentModule#ZaaNetStorage": "0x3340dFaBE7b6A3C7E9c87d1767100Ea04767adCc",
+  "ZaaNetDeploymentModule#ZaaNetAdmin": "0x2528D281898134A1f13D3652f5f0BfE04df493b0",
+  "ZaaNetDeploymentModule#ZaaNetNetwork": "0x67d0C7A3F7aE76eF2d737c4e91fe27A105bDA150",
+  "ZaaNetDeploymentModule#ZaaNetPayment": "0x840BF8a467Af3ee6dAd851c465DF20e2a316C0A3"
 }

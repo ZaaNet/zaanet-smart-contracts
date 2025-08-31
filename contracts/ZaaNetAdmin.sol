@@ -97,6 +97,7 @@ contract ZaaNetAdmin is Ownable, Pausable, ReentrancyGuard {
         }
         
         treasuryAddress = _treasuryAddress;
+        paymentAddress = _paymentAddress;
         platformFeePercent = _platformFeePercent;
         hostingFee = _hostingFee;
 

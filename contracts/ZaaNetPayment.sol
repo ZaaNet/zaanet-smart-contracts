@@ -26,6 +26,12 @@ interface IZaaNetStorage {
     function increaseHostEarnings(address host, uint256 amount) external;
 
     function increaseZaaNetEarnings(uint256 amount) external;
+
+   function updateTotalPaymentsAmount(uint256 amount) external;
+
+    function updateTotalWithdrawalsAmount(uint256 amount) external;
+
+    function updateTotalHostingAmount(uint256 amount) external;
 }
 
 interface IZaaNetAdmin {
@@ -304,6 +310,9 @@ contract ZaaNetPayment is Ownable, Pausable, ReentrancyGuard {
             storageContract.increaseZaaNetEarnings(totalPlatformFee);
         }
 
+        // Update total payments amount in storage
+        storageContract.updateTotalPaymentsAmount(totalAmount);
+
         emit BatchPaymentProcessed(
             payments.length,
             totalAmount,
@@ -355,6 +364,9 @@ contract ZaaNetPayment is Ownable, Pausable, ReentrancyGuard {
         if (platformFee > 0) {
             storageContract.increaseZaaNetEarnings(platformFee);
         }
+
+        // Update total payments amount in storage
+        storageContract.updateTotalPaymentsAmount(_grossAmount);
 
         emit PaymentProcessed(
             _voucherId,
